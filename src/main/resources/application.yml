@@ -2,7 +2,7 @@ spring:
   application:
     name: backend
   profiles:
-    active: local
+    default: local
 
 server:
   port: ${PORT:8080}
