@@ -1,4 +1,4 @@
-package com.seolstudy.backend.domain.user.entity;
+package com.seolstudy.backend.domain.user;
 
 public enum UserRole {
     MENTOR,

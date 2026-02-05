@@ -1,8 +1,8 @@
-package com.seolstudy.backend.domain.user.dto;
+package com.seolstudy.backend.dto.auth;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-import com.seolstudy.backend.domain.user.entity.UserRole;
+import com.seolstudy.backend.domain.user.UserRole;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;

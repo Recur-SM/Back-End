@@ -1,4 +1,4 @@
-package com.seolstudy.backend.domain.user.entity;
+package com.seolstudy.backend.domain.user;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
