@@ -8,7 +8,9 @@ import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
+@DataJpaTest
 public class UserRepositoryTest {
 
     @Autowired
@@ -47,7 +49,7 @@ public class UserRepositoryTest {
         userRepository.save(user);
 
         //when
-        User foundUser = userRepository.findByUserrname("test").orElseThrow();
+        User foundUser = userRepository.findByUsername("test").orElseThrow();
 
         //then
         assertThat(foundUser.getUsername()).isEqualTo("test");
@@ -57,17 +59,17 @@ public class UserRepositoryTest {
     @Test
     @DisplayName("존재하지 않는 username 조회 시 빈 Optional 반환")
     void 존재하지_않는_username_조회() {
-        // when
+        //when
         Optional<User> foundUser = userRepository.findByUsername("notexist");
 
-        // then
+        //then
         assertThat(foundUser.isEmpty()).isTrue();
     }
 
     @Test
     @DisplayName("username 중복하는 경우")
     void username_중복_존재() {
-        // given
+        //given
         User user = User.builder()
                 .username("test")
                 .password("password123")
@@ -76,20 +78,20 @@ public class UserRepositoryTest {
                 .build();
         userRepository.save(user);
 
-        // when
+        //when
         boolean exists = userRepository.existsByUsername("test");
 
-        // then
+        //then
         assertThat(exists).isTrue();
     }
 
     @Test
     @DisplayName("username 중복하지 않는 경우")
     void username_중복_없음() {
-        // when
+        //when
         boolean exists = userRepository.existsByUsername("notexist");
 
-        // then
+        //then
         assertThat(exists).isFalse();
     }
 }
