@@ -7,6 +7,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.seolstudy.backend.domain.auth.dto.LoginRequest;
+import com.seolstudy.backend.domain.auth.dto.LoginResponse;
 import com.seolstudy.backend.domain.auth.dto.SignUpRequest;
 import com.seolstudy.backend.domain.auth.dto.SignUpResponse;
 import com.seolstudy.backend.domain.auth.service.AuthService;
@@ -84,5 +86,70 @@ public class AuthControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.isSuccess").value(false));
+    }
+
+    @Test
+    @DisplayName("로그인 API 성공")
+    void 로그인_API_성공() throws Exception {
+        //given
+        LoginRequest request = LoginRequest.builder()
+                .username("testuser")
+                .password("password123")
+                .build();
+
+        LoginResponse response = LoginResponse.builder()
+                .accessToken("accessToken123")
+                .refreshToken("refreshToken123")
+                .tokenType("Bearer")
+                .userId(1L)
+                .username("testuser")
+                .build();
+
+        given(authService.login(any(LoginRequest.class))).willReturn(response);
+
+        //when&then
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.isSuccess").value(true))
+                .andExpect(jsonPath("$.code").value("COMMON_200"))
+                .andExpect(jsonPath("$.result.accessToken").value("accessToken123"))
+                .andExpect(jsonPath("$.result.refreshToken").value("refreshToken123"))
+                .andExpect(jsonPath("$.result.tokenType").value("Bearer"))
+                .andExpect(jsonPath("$.result.userId").value(1))
+                .andExpect(jsonPath("$.result.username").value("testuser"));
+    }
+
+    @Test
+    @DisplayName("로그인 API Validation 실패 - 빈 아이디")
+    void 로그인_API_Validation_실패_빈_아이디() throws Exception {
+        //given
+        LoginRequest request = LoginRequest.builder()
+                .username("")
+                .password("password123")
+                .build();
+
+        //when&then
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("로그인 API Validation 실패 - 빈 비밀번호")
+    void 로그인_API_Validation_실패_빈_비밀번호() throws Exception {
+        //given
+        LoginRequest request = LoginRequest.builder()
+                .username("testuser")
+                .password("")
+                .build();
+
+        //when&then
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
     }
 }
