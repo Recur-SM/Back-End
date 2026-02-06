@@ -15,7 +15,7 @@ public class JwtTokenProviderTest {
      void setUp() {
         jwtTokenProvider = new JwtTokenProvider();
         ReflectionTestUtils.setField(jwtTokenProvider, "secretKey",
-                "testSecretKey");
+                "test-secret-key-for-jwt-token-provider-unit-test-minimum-256-bits");
         ReflectionTestUtils.setField(jwtTokenProvider, "accessTokenExpiration", 3600000L);
         ReflectionTestUtils.setField(jwtTokenProvider, "refreshTokenExpiration", 604800000L);
         jwtTokenProvider.init();
