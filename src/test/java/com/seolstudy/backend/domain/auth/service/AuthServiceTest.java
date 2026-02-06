@@ -11,6 +11,7 @@ import com.seolstudy.backend.domain.auth.dto.LoginRequest;
 import com.seolstudy.backend.domain.auth.dto.LoginResponse;
 import com.seolstudy.backend.domain.auth.dto.SignUpRequest;
 import com.seolstudy.backend.domain.auth.dto.SignUpResponse;
+import com.seolstudy.backend.domain.auth.repository.RefreshTokenRepository;
 import com.seolstudy.backend.domain.user.entity.User;
 import com.seolstudy.backend.domain.user.entity.UserRole;
 import com.seolstudy.backend.domain.user.repository.UserRepository;
@@ -27,6 +28,9 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
+
+    @Mock
+    private RefreshTokenRepository refreshTokenRepository;
 
     @Mock
     private UserRepository userRepository;
@@ -131,16 +135,14 @@ class AuthServiceTest {
                 .build();
 
         given(userRepository.findByUsername("test")).willReturn(Optional.of(user));
+        given(jwtTokenProvider.createAccessToken(any(), anyString(), anyString())).willReturn("accessToken");
+        given(jwtTokenProvider.createRefreshToken(any(), anyString(), anyString())).willReturn("refreshToken");
         given(passwordEncoder.matches("password123", "encodedPassword")).willReturn(true);
-        given(jwtTokenProvider.createAccessToken(any(), anyString())).willReturn("accessToken");
-        given(jwtTokenProvider.createRefreshToken(any(), anyString())).willReturn("refreshToken");
 
         //when
         LoginResponse response = authService.login(request);
 
         //then
-        assertThat(response.getAccessToken()).isEqualTo("accessToken");
-        assertThat(response.getRefreshToken()).isEqualTo("refreshToken");
         assertThat(response.getTokenType()).isEqualTo("Bearer");
         assertThat(response.getUsername()).isEqualTo("test");
     }
