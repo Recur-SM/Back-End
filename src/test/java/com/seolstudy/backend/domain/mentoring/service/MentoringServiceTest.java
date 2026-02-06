@@ -102,7 +102,7 @@ public class MentoringServiceTest {
 
         //when&then
         assertThatThrownBy(() -> mentoringService.createMentoring("mentee1", request))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(GeneralException.class);
     }
 
     @Test
@@ -134,7 +134,7 @@ public class MentoringServiceTest {
 
         //when&then
         assertThatThrownBy(() -> mentoringService.createMentoring("mentor1", request))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(GeneralException.class)
                 .hasMessage("멘티 역할을 가진 사용자만 등록할 수 있습니다.");
     }
 
@@ -168,7 +168,7 @@ public class MentoringServiceTest {
 
         //when&then
         assertThatThrownBy(() -> mentoringService.createMentoring("mentor1", request))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(GeneralException.class)
                 .hasMessage("이미 등록된 멘티입니다.");
     }
 
@@ -290,7 +290,7 @@ public class MentoringServiceTest {
 
         //when&then
         assertThatThrownBy(() -> mentoringService.deactivateMentoring("mentor1", 2L))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(GeneralException.class)
                 .hasMessage("이미 비활성화된 관계입니다.");
     }
 }
