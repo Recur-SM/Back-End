@@ -17,6 +17,9 @@ public enum ErrorStatus implements BaseStatus {
     // Member Error
     MEMBER_NOT_FOUND(HttpStatus.BAD_REQUEST, "MEMBER_4001", "사용자가 없습니다."),
     NICKNAME_NOT_EXIST(HttpStatus.BAD_REQUEST, "MEMBER_4002", "닉네임은 필수 입니다."),
+
+    // Subject Error
+    SUBJECT_NOT_FOUND(HttpStatus.BAD_REQUEST, "SUBJECT_4001", "과목을 찾을 수 없습니다."),
     ;
 
     private final HttpStatus httpStatus;
