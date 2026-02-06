@@ -10,3 +10,7 @@ server:
 springdoc:
   swagger-ui:
     path: /swagger
+
+jwt:
+  secret: java-and-sumi-backend
+  expiration: 86400000
