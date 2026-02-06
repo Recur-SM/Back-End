@@ -50,4 +50,8 @@ public class User {
         createdAt = LocalDateTime.now();
     }
 
+    public void encodePassword(String encodedPassword) {
+        this.password = encodedPassword;
+    }
+
 }
