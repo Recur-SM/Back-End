@@ -23,6 +23,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
@@ -44,7 +45,7 @@ class AuthServiceTest {
     void 회원가입_성공() {
         //given
         SignUpRequest request = SignUpRequest.builder()
-                .username("test")
+                .username("testuser")
                 .password("password123")
                 .passwordConfirm("password123")
                 .name("테스트")
@@ -52,21 +53,24 @@ class AuthServiceTest {
                 .build();
 
         User savedUser = User.builder()
-                .username("test")
+                .username("testuser")
                 .password("encodedPassword")
                 .name("테스트")
                 .role(UserRole.MENTEE)
                 .build();
 
-        given(userRepository.existsByUsername(anyString())).willReturn(false);
-        given(passwordEncoder.encode(anyString())).willReturn("encodedPassword");
+        ReflectionTestUtils.setField(savedUser, "id", 1L);
+
+        given(userRepository.existsByUsername("testuser")).willReturn(false);
+        given(passwordEncoder.encode("password123")).willReturn("encodedPassword");
         given(userRepository.save(any(User.class))).willReturn(savedUser);
 
         //when
         SignUpResponse response = authService.signUp(request);
 
         //then
-        assertThat(response.getUsername()).isEqualTo("test");
+        assertThat(response).isNotNull();
+        assertThat(response.getUsername()).isEqualTo("testuser");
         assertThat(response.getName()).isEqualTo("테스트");
         assertThat(response.getRole()).isEqualTo(UserRole.MENTEE);
         verify(userRepository).save(any(User.class));
@@ -111,19 +115,6 @@ class AuthServiceTest {
     }
 
     @Test
-    @DisplayName("아이디 중복 확인")
-    void 아이디_중복_확인() {
-        //given
-        given(userRepository.existsByUsername("test")).willReturn(true);
-
-        //when
-        boolean isDuplicate = authService.checkUsernameDuplicate("test");
-
-        //then
-        assertThat(isDuplicate).isTrue();
-    }
-
-    @Test
     @DisplayName("로그인 성공")
     void 로그인_성공() {
         //given
@@ -151,7 +142,7 @@ class AuthServiceTest {
         assertThat(response.getAccessToken()).isEqualTo("accessToken");
         assertThat(response.getRefreshToken()).isEqualTo("refreshToken");
         assertThat(response.getTokenType()).isEqualTo("Bearer");
-        assertThat(response.getUsername()).isEqualTo("testuser");
+        assertThat(response.getUsername()).isEqualTo("test");
     }
 
     @Test

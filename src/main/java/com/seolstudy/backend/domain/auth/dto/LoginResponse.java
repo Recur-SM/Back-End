@@ -17,11 +17,11 @@ public class LoginResponse {
     private Long userId;
     private String username;
 
-    public static LoginResponse of(String accessToken, String refreshToken, String tokenType, Long userId, String username) {
+    public static LoginResponse of(String accessToken, String refreshToken, Long userId, String username) {
         return LoginResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
-                .tokenType(tokenType)
+                .tokenType("Bearer")
                 .userId(userId)
                 .username(username)
                 .build();
