@@ -2,9 +2,11 @@ package com.seolstudy.backend.global.security;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
+import java.util.Collections;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.test.util.ReflectionTestUtils;
 
 public class JwtTokenProviderTest {
@@ -13,7 +15,13 @@ public class JwtTokenProviderTest {
 
     @BeforeEach
      void setUp() {
-        jwtTokenProvider = new JwtTokenProvider();
+        jwtTokenProvider = new JwtTokenProvider(
+                username -> User.builder()
+                        .username(username)
+                        .password("password")
+                        .authorities(Collections.emptyList())
+                        .build()
+        );
         ReflectionTestUtils.setField(jwtTokenProvider, "secretKey",
                 "test-secret-key-for-jwt-token-provider-unit-test-minimum-256-bits");
         ReflectionTestUtils.setField(jwtTokenProvider, "accessTokenExpiration", 3600000L);
@@ -29,7 +37,7 @@ public class JwtTokenProviderTest {
         String username = "testuser";
 
         // when
-        String token = jwtTokenProvider.createAccessToken(userId, username);
+        String token = jwtTokenProvider.createAccessToken(userId, username, "MENTEE");
 
         // then
         assertThat(token).isNotNull();
@@ -44,7 +52,7 @@ public class JwtTokenProviderTest {
         String username = "testuser";
 
         //when
-        String token = jwtTokenProvider.createRefreshToken(userId, username);
+        String token = jwtTokenProvider.createRefreshToken(userId, username, "MENTEE");
 
         //then
         assertThat(token).isNotNull();
@@ -57,7 +65,7 @@ public class JwtTokenProviderTest {
         //given
         Long userId = 1L;
         String username = "testuser";
-        String token = jwtTokenProvider.createAccessToken(userId, username);
+        String token = jwtTokenProvider.createAccessToken(userId, username, "MENTEE");
 
         //when
         Long extractedUserId = jwtTokenProvider.getUserId(token);
@@ -72,7 +80,7 @@ public class JwtTokenProviderTest {
         //given
         Long userId = 1L;
         String username = "testuser";
-        String token = jwtTokenProvider.createAccessToken(userId, username);
+        String token = jwtTokenProvider.createAccessToken(userId, username, "MENTEE");
 
         //when
         String extractedUsername = jwtTokenProvider.getUsername(token);
@@ -87,7 +95,7 @@ public class JwtTokenProviderTest {
         //given
         Long userId = 1L;
         String username = "testuser";
-        String token = jwtTokenProvider.createAccessToken(userId, username);
+        String token = jwtTokenProvider.createAccessToken(userId, username, "MENTEE");
 
         //when
         boolean isValid = jwtTokenProvider.validateToken(token);
