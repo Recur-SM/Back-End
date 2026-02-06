@@ -30,7 +30,7 @@ public class AuthServiceTest {
     @Test
     @DisplayName("회원가입 성공")
     void 회원가입_성공() {
-        // given
+        //given
         SignUpRequest request = SignUpRequest.builder()
                 .username("test")
                 .password("password123")
@@ -50,10 +50,10 @@ public class AuthServiceTest {
         given(userRepository.existsByUsername("test")).willReturn(false);
         given(userRepository.save(any(User.class))).willReturn(savedUser);
 
-        // when
+        //when
         SignUpResponse response = authService.signUp(request);
 
-        // then
+        //then
         assertThat(response.getUsername()).isEqualTo("test");
         assertThat(response.getName()).isEqualTo("홍길동");
         assertThat(response.getRole()).isEqualTo(UserRole.MENTEE);
@@ -62,7 +62,7 @@ public class AuthServiceTest {
     @Test
     @DisplayName("비밀번호 불일치")
     void 비밀번호_불일치() {
-        // given
+        //given
         SignUpRequest request = SignUpRequest.builder()
                 .username("test")
                 .password("password123")
@@ -71,7 +71,7 @@ public class AuthServiceTest {
                 .role(UserRole.MENTEE)
                 .build();
 
-        // when & then
+        //when&then
         assertThatThrownBy(() -> authService.signUp(request))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("비밀번호가 일치하지 않습니다.");
@@ -80,7 +80,7 @@ public class AuthServiceTest {
     @Test
     @DisplayName("아이디 중복")
     void 아이디_중복() {
-        // given
+        //given
         SignUpRequest request = SignUpRequest.builder()
                 .username("test")
                 .password("password123")
@@ -89,9 +89,9 @@ public class AuthServiceTest {
                 .role(UserRole.MENTEE)
                 .build();
 
-        given(userRepository.existsByUsername("testuser")).willReturn(true);
+        given(userRepository.existsByUsername("test")).willReturn(true);
 
-        // when & then
+        //when&then
         assertThatThrownBy(() -> authService.signUp(request))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("이미 존재하는 아이디입니다.");
