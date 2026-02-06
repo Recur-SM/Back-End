@@ -9,21 +9,44 @@ import jakarta.validation.ConstraintViolationException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestControllerAdvice
-public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+public class GlobalExceptionHandler {
+    @ExceptionHandler(value = MaxUploadSizeExceededException.class)
+    public ResponseEntity<Object> handleMaxUploadSize(MaxUploadSizeExceededException e, WebRequest request) {
+        CommonResponse<Object> body = CommonResponse.onFailure(
+                ErrorStatus.PLANNER_IMAGE_TOO_LARGE.getCode(),
+                ErrorStatus.PLANNER_IMAGE_TOO_LARGE.getMessage(),
+                null
+        );
+
+        return ResponseEntity.status(ErrorStatus.PLANNER_IMAGE_TOO_LARGE.getHttpStatus()).body(body);
+    }
+
+    @ExceptionHandler(value = MultipartException.class)
+    public ResponseEntity<Object> handleMultipart(MultipartException e, WebRequest request) {
+        CommonResponse<Object> body = CommonResponse.onFailure(
+                ErrorStatus.INVALID_PLANNER_IMAGE.getCode(),
+                ErrorStatus.INVALID_PLANNER_IMAGE.getMessage(),
+                null
+        );
+
+        return ResponseEntity.status(ErrorStatus.INVALID_PLANNER_IMAGE.getHttpStatus()).body(body);
+    }
+
 
     @ExceptionHandler(value = ConstraintViolationException.class)
     public ResponseEntity<Object> validation(ConstraintViolationException e, WebRequest request) {
@@ -45,14 +68,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 errorStatus.getMessage(),
                 null);
 
-        return super.handleExceptionInternal(e, body, HttpHeaders.EMPTY, errorStatus.getHttpStatus(), request);
+        return ResponseEntity.status(errorStatus.getHttpStatus()).body(body);
     }
 
-    @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException e,
-                                                                  HttpHeaders headers,
-                                                                  HttpStatusCode status,
-                                                                  WebRequest request) {
+    @ExceptionHandler(value = MethodArgumentNotValidException.class)
+    public ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException e, WebRequest request) {
         Map<String, String> errors = new LinkedHashMap<>();
 
         e.getBindingResult().getFieldErrors()
@@ -67,7 +87,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 ErrorStatus.BAD_REQUEST.getMessage(),
                 errors);
 
-        return super.handleExceptionInternal(e, body, HttpHeaders.EMPTY, ErrorStatus.BAD_REQUEST.getHttpStatus(), request);
+        return ResponseEntity.status(ErrorStatus.BAD_REQUEST.getHttpStatus()).body(body);
     }
 
     @ExceptionHandler(value = GeneralException.class)
@@ -78,18 +98,17 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 errorReasonHttpStatus.getMessage(),
                 null);
 
-        return super.handleExceptionInternal(generalException, body, null, errorReasonHttpStatus.getHttpStatus(),
-                new ServletWebRequest(request));
+        return ResponseEntity.status(errorReasonHttpStatus.getHttpStatus()).body(body);
     }
 
     @ExceptionHandler
     public ResponseEntity<Object> handleOthers(Exception e, WebRequest request) {
+        log.error("Unhandled exception", e);
         CommonResponse<Object> body = CommonResponse.onFailure(ErrorStatus.INTERNAL_SERVER_ERROR.getCode(),
                 ErrorStatus.INTERNAL_SERVER_ERROR.getMessage(),
                 null);
 
-        return super.handleExceptionInternal(e, body, HttpHeaders.EMPTY,
-                ErrorStatus.INTERNAL_SERVER_ERROR.getHttpStatus(), request);
+        return ResponseEntity.status(ErrorStatus.INTERNAL_SERVER_ERROR.getHttpStatus()).body(body);
     }
 
     // 인증 관련 예외 처리
@@ -100,7 +119,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 "이메일 또는 비밀번호가 올바르지 않습니다.",
                 null
         );
-        return super.handleExceptionInternal(e, body, HttpHeaders.EMPTY,
-                ErrorStatus.UNAUTHORIZED.getHttpStatus(), request);
+        return ResponseEntity.status(ErrorStatus.UNAUTHORIZED.getHttpStatus()).body(body);
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<Object> handleAccessDenied(AuthorizationDeniedException e, WebRequest request) {
+        CommonResponse<Object> body = CommonResponse.onFailure(
+                ErrorStatus.FORBIDDEN.getCode(),
+                ErrorStatus.FORBIDDEN.getMessage(),
+                null
+        );
+        return ResponseEntity.status(ErrorStatus.FORBIDDEN.getHttpStatus()).body(body);
     }
 }

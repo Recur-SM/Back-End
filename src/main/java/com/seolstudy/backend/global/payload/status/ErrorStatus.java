@@ -22,6 +22,18 @@ public enum ErrorStatus implements BaseStatus {
     TASK_NOT_FOUND(HttpStatus.BAD_REQUEST, "TASK_4001", "과제를 찾을 수 없습니다."),
     INVALID_TASK_DATE(HttpStatus.BAD_REQUEST, "TASK_4002", "유효하지 않은 날짜 형식입니다."),
 
+    // Planner Error
+    PLANNER_NOT_FOUND(HttpStatus.BAD_REQUEST, "PLANNER_4001", "플래너를 찾을 수 없습니다."),
+    PLANNER_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "PLANNER_4002", "해당 날짜의 플래너가 이미 존재합니다."),
+    INVALID_PLANNER_DATE(HttpStatus.BAD_REQUEST, "PLANNER_4003", "유효하지 않은 날짜 형식입니다."),
+    PLANNER_ACCESS_DENIED(HttpStatus.FORBIDDEN, "PLANNER_4004", "플래너에 접근할 수 없습니다."),
+    INVALID_PLANNER_IMAGE(HttpStatus.BAD_REQUEST, "PLANNER_4005", "플래너 이미지는 필수입니다."),
+    INVALID_PLANNER_IMAGE_TYPE(HttpStatus.BAD_REQUEST, "PLANNER_4006", "이미지 파일만 업로드할 수 있습니다."),
+    PLANNER_IMAGE_TOO_LARGE(HttpStatus.BAD_REQUEST, "PLANNER_4007", "이미지 파일 용량이 너무 큽니다."),
+    PLANNER_IMAGE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "PLANNER_5001", "플래너 이미지 업로드에 실패했습니다."),
+    INVALID_MENTEE_ROLE(HttpStatus.FORBIDDEN, "PLANNER_4008", "멘티만 플래너 등록이 가능합니다."),
+    INVALID_MENTOR_ROLE(HttpStatus.FORBIDDEN, "PLANNER_4009", "멘토만 코멘트 등록이 가능합니다."),
+
     // Subject Error
     SUBJECT_NOT_FOUND(HttpStatus.BAD_REQUEST, "SUBJECT_4001", "과목을 찾을 수 없습니다."),
     ;
