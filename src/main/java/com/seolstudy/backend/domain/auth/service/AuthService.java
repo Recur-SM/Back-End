@@ -9,6 +9,8 @@ import com.seolstudy.backend.domain.auth.dto.SignUpResponse;
 import com.seolstudy.backend.domain.auth.entity.RefreshToken;
 import com.seolstudy.backend.domain.auth.repository.RefreshTokenRepository;
 import com.seolstudy.backend.domain.user.repository.UserRepository;
+import com.seolstudy.backend.global.exception.GeneralException;
+import com.seolstudy.backend.global.payload.status.ErrorStatus;
 import com.seolstudy.backend.global.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,11 +30,11 @@ public class AuthService {
     @Transactional
     public SignUpResponse signUp(SignUpRequest request) {
         if (!request.isPasswordMatch()) {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            throw new GeneralException(ErrorStatus.INVALID_CREDENTIALS);
         }
 
         if (userRepository.existsByUsername(request.getUsername())) {
-            throw new IllegalArgumentException("이미 사용중인 아이디입니다.");
+            throw new GeneralException(ErrorStatus.DUPLICATE_LOGIN_ID);
         }
 
         User user = User.builder()
@@ -50,10 +52,10 @@ public class AuthService {
     @Transactional
     public LoginResponse login(LoginRequest request) {
         User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new IllegalArgumentException("아이디 또는 비밀번호가 일치하지 않습니다."));
+                .orElseThrow(() -> new GeneralException(ErrorStatus.INVALID_CREDENTIALS));
 
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword())){
-            throw new IllegalArgumentException("아이디 또는 비밀번호가 일치하지 않습니다.");
+            throw new GeneralException(ErrorStatus.INVALID_CREDENTIALS);
         }
 
         String role = user.getRole().name();
@@ -69,11 +71,11 @@ public class AuthService {
     public LoginResponse refresh(RefreshTokenRequest request) {
         String refreshToken = request.getRefreshToken();
         if (!jwtTokenProvider.validateToken(refreshToken)) {
-            throw new IllegalArgumentException("유효하지 않은 리프레시 토큰입니다.");
+            throw new GeneralException(ErrorStatus.UNAUTHORIZED);
         }
 
         RefreshToken storedToken = refreshTokenRepository.findByToken(refreshToken)
-                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 리프레시 토큰입니다."));
+                .orElseThrow(() -> new GeneralException(ErrorStatus.UNAUTHORIZED));
 
         User user = storedToken.getUser();
         String role = user.getRole().name();

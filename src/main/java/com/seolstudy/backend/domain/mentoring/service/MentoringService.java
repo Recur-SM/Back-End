@@ -30,18 +30,18 @@ public class MentoringService {
                 .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
 
         if (mentor.getRole() != UserRole.MENTOR) {
-            throw new IllegalArgumentException("멘토 역할을 가진 사용자만 등록할 수 있습니다.");
+            throw new GeneralException(ErrorStatus.MENTORING_INVALID_MENTOR_ROLE);
         }
 
         User mentee = userRepository.findById(request.getMenteeId())
                 .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
 
         if (mentee.getRole() != UserRole.MENTEE) {
-            throw new IllegalArgumentException("멘티 역할을 가진 사용자만 등록할 수 있습니다.");
+            throw new GeneralException(ErrorStatus.MENTORING_INVALID_MENTEE_ROLE);
         }
 
         if (mentoringRepository.existsActiveRelationship(mentor.getId(), mentee.getId())) {
-            throw new IllegalArgumentException("이미 등록된 멘티입니다.");
+            throw new GeneralException(ErrorStatus.MENTORING_MENTEE_ALREADY_REGISTERED);
         }
 
         Mentoring mentoring = mentoringRepository.findByMentorIdAndMenteeId(mentor.getId(), mentee.getId())
@@ -75,7 +75,7 @@ public class MentoringService {
                 .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
 
         if (!mentoring.getIsActive()) {
-            throw new IllegalArgumentException("이미 비활성화된 관계입니다.");
+            throw new GeneralException(ErrorStatus.MENTORING_ALREADY_INACTIVE);
         }
 
         mentoring.deactivate();

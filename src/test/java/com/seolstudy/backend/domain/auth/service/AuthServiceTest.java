@@ -15,6 +15,7 @@ import com.seolstudy.backend.domain.auth.repository.RefreshTokenRepository;
 import com.seolstudy.backend.domain.user.entity.User;
 import com.seolstudy.backend.domain.user.entity.UserRole;
 import com.seolstudy.backend.domain.user.repository.UserRepository;
+import com.seolstudy.backend.global.exception.GeneralException;
 import com.seolstudy.backend.global.security.JwtTokenProvider;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -94,7 +95,7 @@ class AuthServiceTest {
 
         //when&then
         assertThatThrownBy(() -> authService.signUp(request))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(GeneralException.class)
                 .hasMessage("비밀번호가 일치하지 않습니다.");
     }
 
@@ -114,7 +115,7 @@ class AuthServiceTest {
 
         //when&then
         assertThatThrownBy(() -> authService.signUp(request))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(GeneralException.class)
                 .hasMessage("이미 사용중인 아이디입니다.");
     }
 
@@ -160,7 +161,7 @@ class AuthServiceTest {
 
         //when&then
         assertThatThrownBy(() -> authService.login(request))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(GeneralException.class)
                 .hasMessage("아이디 또는 비밀번호가 일치하지 않습니다.");
     }
 
@@ -185,7 +186,7 @@ class AuthServiceTest {
 
         //when&then
         assertThatThrownBy(() -> authService.login(request))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(GeneralException.class)
                 .hasMessage("아이디 또는 비밀번호가 일치하지 않습니다.");
     }
 }
