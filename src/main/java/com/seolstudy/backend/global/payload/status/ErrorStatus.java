@@ -18,6 +18,10 @@ public enum ErrorStatus implements BaseStatus {
     MEMBER_NOT_FOUND(HttpStatus.BAD_REQUEST, "MEMBER_4001", "사용자가 없습니다."),
     NICKNAME_NOT_EXIST(HttpStatus.BAD_REQUEST, "MEMBER_4002", "닉네임은 필수 입니다."),
 
+    // Task Error
+    TASK_NOT_FOUND(HttpStatus.BAD_REQUEST, "TASK_4001", "과제를 찾을 수 없습니다."),
+    INVALID_TASK_DATE(HttpStatus.BAD_REQUEST, "TASK_4002", "유효하지 않은 날짜 형식입니다."),
+
     // Subject Error
     SUBJECT_NOT_FOUND(HttpStatus.BAD_REQUEST, "SUBJECT_4001", "과목을 찾을 수 없습니다."),
     ;
