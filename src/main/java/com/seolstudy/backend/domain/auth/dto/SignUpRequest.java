@@ -1,6 +1,6 @@
-package com.seolstudy.backend.dto.auth;
+package com.seolstudy.backend.domain.auth.dto;
 
-import com.seolstudy.backend.domain.user.UserRole;
+import com.seolstudy.backend.domain.user.entity.UserRole;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

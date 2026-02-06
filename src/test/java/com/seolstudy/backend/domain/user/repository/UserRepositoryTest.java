@@ -1,9 +1,9 @@
-package com.seolstudy.backend.repository.user;
+package com.seolstudy.backend.domain.user.repository;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-import com.seolstudy.backend.domain.user.User;
-import com.seolstudy.backend.domain.user.UserRole;
+import com.seolstudy.backend.domain.user.entity.User;
+import com.seolstudy.backend.domain.user.entity.UserRole;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

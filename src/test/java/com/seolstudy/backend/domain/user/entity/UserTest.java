@@ -1,4 +1,4 @@
-package com.seolstudy.backend.domain.user;
+package com.seolstudy.backend.domain.user.entity;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
