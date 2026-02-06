@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "오늘 할일", description = "오늘 할일 관련 API")
@@ -23,6 +24,7 @@ public class TaskController {
 
     @Operation(summary = "오늘 할일 전체 조회", description = "오늘 할일 전체를 조회합니다.")
     @GetMapping
+    @PreAuthorize("hasAnyRole('MENTEE', 'MENTOR')")
     public CommonResponse<TaskListResponse> getTasks(
             @RequestParam("mentee_id") Long menteeId,
             @RequestParam(value = "date", required = false) String date
@@ -34,6 +36,7 @@ public class TaskController {
     @Operation(summary = "특정 과목 할일 조회", description = "특정 과목 할일을 조회합니다.")
 
     @GetMapping("/subject")
+    @PreAuthorize("hasAnyRole('MENTEE', 'MENTOR')")
     public CommonResponse<TaskListBySubjectResponse> getTasksBySubject(
             @RequestParam("mentee_id") Long menteeId,
             @RequestParam(value = "date", required = false) String date,
@@ -46,6 +49,7 @@ public class TaskController {
     @Operation(summary = "오늘 할일 추가", description = "오늘 할일을 추가합니다.")
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('MENTEE', 'MENTOR')")
     public CommonResponse<TaskCreateResponse> createTask(
             @Valid @RequestBody TaskCreateRequest request
     ) {

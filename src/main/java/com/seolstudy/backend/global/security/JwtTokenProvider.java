@@ -7,12 +7,18 @@ import jakarta.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import javax.crypto.SecretKey;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class JwtTokenProvider {
 
     @Value("${jwt.secret}")
@@ -25,27 +31,29 @@ public class JwtTokenProvider {
     private Long refreshTokenExpiration;
 
     private SecretKey key;
+    private final UserDetailsService userDetailsService;
 
     @PostConstruct
     public void init() {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String createAccessToken(Long userId, String username) {
-        return createToken(userId, username, accessTokenExpiration);
+    public String createAccessToken(Long userId, String username, String role) {
+        return createToken(userId, username, role, accessTokenExpiration);
     }
 
-    public String createRefreshToken(Long userId, String username) {
-        return createToken(userId, username, refreshTokenExpiration);
+    public String createRefreshToken(Long userId, String username, String role) {
+        return createToken(userId, username, role, refreshTokenExpiration);
     }
 
-    private String createToken(Long userId, String username, Long expiration) {
+    private String createToken(Long userId, String username, String role, Long expiration) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expiration);
 
         return Jwts.builder()
                 .claim("userId", userId)
                 .claim("username", username)
+                .claim("role", role)
                 .issuedAt(now)
                 .expiration(expiryDate)
                 .signWith(key)
@@ -60,6 +68,11 @@ public class JwtTokenProvider {
     public String getUsername(String token) {
         Claims claims = parseClaims(token);
         return claims.get("username", String.class);
+    }
+
+    public String getRole(String token) {
+        Claims claims = parseClaims(token);
+        return claims.get("role", String.class);
     }
 
     public boolean validateToken(String token) {
@@ -78,5 +91,11 @@ public class JwtTokenProvider {
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
+    }
+
+    public Authentication getAuthentication(String token) {
+        String username = getUsername(token);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        return new UsernamePasswordAuthenticationToken(userDetails, token, userDetails.getAuthorities());
     }
 }
