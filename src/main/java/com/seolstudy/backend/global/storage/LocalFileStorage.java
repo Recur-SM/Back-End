@@ -52,4 +52,33 @@ public class LocalFileStorage {
 
         return "/uploads/planners/" + fileName;
     }
+
+    public String storeTaskCompletionImage(MultipartFile image) {
+        if (image == null || image.isEmpty()) {
+            throw new GeneralException(ErrorStatus.INVALID_TASK_COMPLETION_IMAGE);
+        }
+
+        String contentType = image.getContentType();
+        if (!StringUtils.hasText(contentType) || !contentType.startsWith("image/")) {
+            throw new GeneralException(ErrorStatus.INVALID_TASK_COMPLETION_IMAGE_TYPE);
+        }
+
+        String extension = StringUtils.getFilenameExtension(image.getOriginalFilename());
+        String fileName = UUID.randomUUID().toString();
+        if (StringUtils.hasText(extension)) {
+            fileName += "." + extension;
+        }
+
+        Path completionDir = Paths.get(uploadDir, "task-completions");
+        try {
+            Files.createDirectories(completionDir);
+            Path target = completionDir.resolve(fileName);
+            Files.copy(image.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            log.error("과제 완료 이미지 저장 실패 - uploadDir: {}", uploadDir, e);
+            throw new GeneralException(ErrorStatus.TASK_COMPLETION_IMAGE_UPLOAD_FAILED);
+        }
+
+        return "/uploads/task-completions/" + fileName;
+    }
 }
