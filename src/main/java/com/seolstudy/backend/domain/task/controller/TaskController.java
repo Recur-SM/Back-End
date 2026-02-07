@@ -1,6 +1,7 @@
 package com.seolstudy.backend.domain.task.controller;
 
 import com.seolstudy.backend.domain.task.dto.TaskCompletionResponse;
+import com.seolstudy.backend.domain.task.dto.TaskAttachmentResponse;
 import com.seolstudy.backend.domain.task.dto.TaskCreateRequest;
 import com.seolstudy.backend.domain.task.dto.TaskCreateResponse;
 import com.seolstudy.backend.domain.task.dto.TaskListBySubjectResponse;
@@ -49,13 +50,23 @@ public class TaskController {
     }
 
     @Operation(summary = "오늘 할일 추가", description = "오늘 할일을 추가합니다.")
-
     @PostMapping
-    @PreAuthorize("hasAnyRole('MENTEE', 'MENTOR')")
+    @PreAuthorize("hasRole('MENTOR')")
     public CommonResponse<TaskCreateResponse> createTask(
             @Valid @RequestBody TaskCreateRequest request
     ) {
         TaskCreateResponse response = taskService.createTask(request);
+        return CommonResponse.of(SuccessStatus.CREATED, response);
+    }
+
+    @Operation(summary = "오늘 할일 첨부파일 업로드", description = "PDF 또는 이미지를 업로드합니다.")
+    @PostMapping(value = "/{task_id}/attachment", consumes = "multipart/form-data")
+    @PreAuthorize("hasRole('MENTOR')")
+    public CommonResponse<TaskAttachmentResponse> uploadTaskAttachment(
+            @PathVariable("task_id") Long taskId,
+            @RequestPart("file") MultipartFile file
+    ) {
+        TaskAttachmentResponse response = taskService.uploadTaskAttachment(taskId, file);
         return CommonResponse.of(SuccessStatus.CREATED, response);
     }
 
@@ -64,7 +75,7 @@ public class TaskController {
     @PreAuthorize("hasRole('MENTEE')")
     public CommonResponse<TaskCompletionResponse> submitTask(
             @PathVariable("task_id") Long taskId,
-            @RequestPart(value = "completion_photo", required = false) MultipartFile completionPhoto
+            @RequestPart("completion_photo") MultipartFile completionPhoto
     ) {
         TaskCompletionResponse response = taskService.submitTask(taskId, completionPhoto);
         return CommonResponse.of(SuccessStatus.CREATED, response);

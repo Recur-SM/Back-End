@@ -80,4 +80,10 @@ public class Task {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+
+    public void updateAttachmentUrl(String attachmentUrl) {
+        if (attachmentUrl != null) {
+            this.pdfFileUrl = attachmentUrl;
+        }
+    }
 }
