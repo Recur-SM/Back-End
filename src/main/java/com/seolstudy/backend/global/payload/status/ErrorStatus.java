@@ -43,7 +43,6 @@ public enum ErrorStatus implements BaseStatus {
     INVALID_TASK_COMPLETION_IMAGE(HttpStatus.BAD_REQUEST, "TASK_4003", "완료 인증 사진은 필수입니다."),
     INVALID_TASK_COMPLETION_IMAGE_TYPE(HttpStatus.BAD_REQUEST, "TASK_4004", "이미지 파일만 업로드할 수 있습니다."),
     TASK_COMPLETION_IMAGE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "TASK_5001", "완료 인증 사진 업로드에 실패했습니다."),
-    TASK_COMPLETION_ALREADY_EXISTS(HttpStatus.CONFLICT, "TASK_4091", "이미 과제 제출이 완료되었습니다."),
 
     // Planner Error
     PLANNER_NOT_FOUND(HttpStatus.BAD_REQUEST, "PLANNER_4001", "플래너를 찾을 수 없습니다."),

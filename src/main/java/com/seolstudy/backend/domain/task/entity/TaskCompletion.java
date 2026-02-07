@@ -58,4 +58,14 @@ public class TaskCompletion {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+
+    public void overwriteCompletion(String completionPhotoUrl, LocalDateTime completedAt) {
+        if (completionPhotoUrl != null) {
+            this.completionPhotoUrl = completionPhotoUrl;
+        }
+        if (completedAt != null) {
+            this.completedAt = completedAt;
+        }
+        this.isCompleted = Boolean.TRUE;
+    }
 }

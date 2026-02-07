@@ -148,19 +148,24 @@ public class TaskService {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus.TASK_NOT_FOUND));
 
-        if (taskCompletionRepository.existsByTaskId(taskId)) {
-            throw new GeneralException(ErrorStatus.TASK_COMPLETION_ALREADY_EXISTS);
-        }
-
         MultipartFile photo = getSingleCompletionPhoto(completionPhoto);
         String photoUrl = localFileStorage.storeTaskCompletionImage(photo);
+        LocalDateTime completedAt = LocalDateTime.now();
 
-        TaskCompletion completion = TaskCompletion.builder()
-                .task(task)
-                .completionPhotoUrl(photoUrl)
-                .isCompleted(Boolean.TRUE)
-                .completedAt(LocalDateTime.now())
-                .build();
+        TaskCompletion existingCompletion = taskCompletionRepository.findByTaskId(taskId).orElse(null);
+
+        TaskCompletion completion = existingCompletion != null
+                ? existingCompletion
+                : TaskCompletion.builder()
+                        .task(task)
+                        .completionPhotoUrl(photoUrl)
+                        .isCompleted(Boolean.TRUE)
+                        .completedAt(completedAt)
+                        .build();
+
+        if (existingCompletion != null) {
+            existingCompletion.overwriteCompletion(photoUrl, completedAt);
+        }
 
         TaskCompletion savedCompletion = taskCompletionRepository.save(completion);
         return TaskCompletionResponse.from(savedCompletion);
