@@ -30,8 +30,9 @@ public class TaskResponse {
     private Integer studyTime;
     private String completionPhotoUrl;
     private LocalDateTime completedAt;
+    private Boolean hasFeedback;
 
-    public static TaskResponse from(Task task, String subjectName, String subjectCode) {
+    public static TaskResponse from(Task task, String subjectName, String subjectCode, Boolean hasFeedback) {
         return TaskResponse.builder()
                 .taskId(task.getId())
                 .subjectName(subjectName)
@@ -48,6 +49,7 @@ public class TaskResponse {
                 .studyTime(null)
                 .completionPhotoUrl(null)
                 .completedAt(null)
+                .hasFeedback(hasFeedback)
                 .build();
     }
 }
