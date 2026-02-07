@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class FeedBackCreateRequest {
+public class FeedbackCreateRequest {
 
     @NotNull(message = "과제 ID는 필수입니다.")
     private Long taskId;

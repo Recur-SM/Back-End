@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class FeedBackUpdateRequest {
+public class FeedbackUpdateRequest {
 
     private String detailContent;
 }
