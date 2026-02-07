@@ -153,21 +153,25 @@ public class TaskService {
         LocalDateTime completedAt = LocalDateTime.now();
 
         TaskCompletion existingCompletion = taskCompletionRepository.findByTaskId(taskId).orElse(null);
+        String oldPhotoUrl = existingCompletion != null ? existingCompletion.getCompletionPhotoUrl() : null;
 
         TaskCompletion completion = existingCompletion != null
                 ? existingCompletion
                 : TaskCompletion.builder()
-                        .task(task)
-                        .completionPhotoUrl(photoUrl)
-                        .isCompleted(Boolean.TRUE)
-                        .completedAt(completedAt)
-                        .build();
+                .task(task)
+                .completionPhotoUrl(photoUrl)
+                .isCompleted(Boolean.TRUE)
+                .completedAt(completedAt)
+                .build();
 
         if (existingCompletion != null) {
             existingCompletion.overwriteCompletion(photoUrl, completedAt);
         }
 
         TaskCompletion savedCompletion = taskCompletionRepository.save(completion);
+        if (oldPhotoUrl != null && !oldPhotoUrl.equals(photoUrl)) {
+            localFileStorage.deleteTaskCompletionImage(oldPhotoUrl);
+        }
         return TaskCompletionResponse.from(savedCompletion);
     }
 

@@ -81,4 +81,23 @@ public class LocalFileStorage {
 
         return "/uploads/task-completions/" + fileName;
     }
+
+    public void deleteTaskCompletionImage(String photoUrl) {
+        if (!StringUtils.hasText(photoUrl)) {
+            return;
+        }
+
+        Path fileName = Paths.get(photoUrl).getFileName();
+        if (fileName == null) {
+            return;
+        }
+
+        Path completionDir = Paths.get(uploadDir, "task-completions");
+        Path target = completionDir.resolve(fileName.toString());
+        try {
+            Files.deleteIfExists(target);
+        } catch (IOException e) {
+            log.warn("과제 완료 이미지 삭제 실패 - photoUrl: {}", photoUrl, e);
+        }
+    }
 }
