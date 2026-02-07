@@ -39,8 +39,6 @@ public class TaskCreateRequest {
 
     private LearningMaterialType learningMaterialType;
 
-    private String pdfFileUrl;
-
     private String columnContent;
 
     private String comment;

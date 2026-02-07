@@ -127,7 +127,7 @@ public class TaskService {
                 .taskGoal(request.getTaskGoal())
                 .taskType(request.getTaskType())
                 .learningMaterialType(request.getLearningMaterialType())
-                .pdfFileUrl(request.getPdfFileUrl())
+                .pdfFileUrl(null)
                 .columnContent(request.getColumnContent())
                 .comment(request.getComment())
                 .isFixed(Boolean.FALSE)
@@ -138,6 +138,25 @@ public class TaskService {
 
         // DTO 변환 및 반환
         return TaskCreateResponse.from(savedTask, subject.getSubjectName(), request.getSubjectCode());
+    }
+
+    /**
+     * 오늘 할일 첨부파일 업로드
+     */
+    @Transactional
+    public TaskAttachmentResponse uploadTaskAttachment(Long taskId, MultipartFile file) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.TASK_NOT_FOUND));
+
+        String fileUrl = localFileStorage.storeTaskAttachment(file);
+        String oldFileUrl = task.getPdfFileUrl();
+        task.updateAttachmentUrl(fileUrl);
+
+        if (oldFileUrl != null && !oldFileUrl.equals(fileUrl)) {
+            localFileStorage.deleteTaskAttachment(oldFileUrl);
+        }
+
+        return TaskAttachmentResponse.of(task.getId(), fileUrl);
     }
 
     /**
