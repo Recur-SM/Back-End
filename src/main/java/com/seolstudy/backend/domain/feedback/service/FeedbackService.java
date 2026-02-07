@@ -39,27 +39,21 @@ public class FeedbackService {
      */
     @Transactional
     public FeedbackResponse createFeedback(FeedbackCreateRequest request) {
-        // Task 조회
         Task task = taskRepository.findById(request.getTaskId())
                 .orElseThrow(() -> new GeneralException(ErrorStatus.TASK_NOT_FOUND));
 
-        // 이미 피드백이 존재하는지 확인
         if (feedbackRepository.existsByTaskId(request.getTaskId())) {
             throw new GeneralException(ErrorStatus.FEEDBACK_ALREADY_EXISTS);
         }
 
-        // User 조회
         User mentee = getUserOrThrow(request.getMenteeId());
         User mentor = getUserOrThrow(request.getMentorId());
 
-        // Subject 조회
         Subject subject = subjectRepository.findById(request.getSubjectId())
                 .orElseThrow(() -> new GeneralException(ErrorStatus.SUBJECT_NOT_FOUND));
 
-        // 날짜 파싱
         LocalDate feedbackDate = parseDate(request.getFeedbackDate());
 
-        // Feedback 생성
         Feedback feedback = Feedback.builder()
                 .task(task)
                 .mentee(mentee)
