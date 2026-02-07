@@ -199,15 +199,6 @@ public class TaskService {
         }
     }
 
-    /**
-     * 멘토 존재 여부 검증
-     */
-    private void validateMentorExists(Long mentorId) {
-        if (mentorId == null || !userRepository.existsById(mentorId)) {
-            throw new GeneralException(ErrorStatus.MEMBER_NOT_FOUND);
-        }
-    }
-
     private User getUserOrThrow(Long userId) {
         if (userId == null) {
             throw new GeneralException(ErrorStatus.MEMBER_NOT_FOUND);
@@ -218,11 +209,10 @@ public class TaskService {
     }
 
     private MultipartFile getSingleCompletionPhoto(MultipartFile completionPhoto) {
-        MultipartFile photo = completionPhoto;
-        if (photo == null || photo.isEmpty()) {
+        if (completionPhoto == null || completionPhoto.isEmpty()) {
             throw new GeneralException(ErrorStatus.INVALID_TASK_COMPLETION_IMAGE);
         }
 
-        return photo;
+        return completionPhoto;
     }
 }
