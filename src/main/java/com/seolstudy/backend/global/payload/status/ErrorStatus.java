@@ -42,7 +42,12 @@ public enum ErrorStatus implements BaseStatus {
     INVALID_TASK_DATE(HttpStatus.BAD_REQUEST, "TASK_4002", "유효하지 않은 날짜 형식입니다."),
     INVALID_TASK_COMPLETION_IMAGE(HttpStatus.BAD_REQUEST, "TASK_4003", "완료 인증 사진은 필수입니다."),
     INVALID_TASK_COMPLETION_IMAGE_TYPE(HttpStatus.BAD_REQUEST, "TASK_4004", "이미지 파일만 업로드할 수 있습니다."),
+    INVALID_TASK_ATTACHMENT(HttpStatus.BAD_REQUEST, "TASK_4005", "첨부파일은 필수입니다."),
+    INVALID_TASK_ATTACHMENT_TYPE(HttpStatus.BAD_REQUEST, "TASK_4006", "PDF 또는 이미지 파일만 업로드할 수 있습니다."),
+    TASK_COMPLETION_IMAGE_TOO_LARGE(HttpStatus.BAD_REQUEST, "TASK_4007", "완료 인증 사진 용량이 너무 큽니다."),
+    TASK_ATTACHMENT_TOO_LARGE(HttpStatus.BAD_REQUEST, "TASK_4008", "첨부파일 용량이 너무 큽니다."),
     TASK_COMPLETION_IMAGE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "TASK_5001", "완료 인증 사진 업로드에 실패했습니다."),
+    TASK_ATTACHMENT_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "TASK_5002", "첨부파일 업로드에 실패했습니다."),
 
     // Planner Error
     PLANNER_NOT_FOUND(HttpStatus.BAD_REQUEST, "PLANNER_4001", "플래너를 찾을 수 없습니다."),

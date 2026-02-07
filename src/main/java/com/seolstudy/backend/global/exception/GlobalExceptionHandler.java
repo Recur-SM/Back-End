@@ -26,25 +26,27 @@ import lombok.extern.slf4j.Slf4j;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(value = MaxUploadSizeExceededException.class)
-    public ResponseEntity<Object> handleMaxUploadSize(MaxUploadSizeExceededException e, WebRequest request) {
+    public ResponseEntity<Object> handleMaxUploadSize(MaxUploadSizeExceededException e, HttpServletRequest request) {
+        ErrorStatus errorStatus = resolveUploadErrorStatus(request, true);
         CommonResponse<Object> body = CommonResponse.onFailure(
-                ErrorStatus.PLANNER_IMAGE_TOO_LARGE.getCode(),
-                ErrorStatus.PLANNER_IMAGE_TOO_LARGE.getMessage(),
+                errorStatus.getCode(),
+                errorStatus.getMessage(),
                 null
         );
 
-        return ResponseEntity.status(ErrorStatus.PLANNER_IMAGE_TOO_LARGE.getHttpStatus()).body(body);
+        return ResponseEntity.status(errorStatus.getHttpStatus()).body(body);
     }
 
     @ExceptionHandler(value = MultipartException.class)
-    public ResponseEntity<Object> handleMultipart(MultipartException e, WebRequest request) {
+    public ResponseEntity<Object> handleMultipart(MultipartException e, HttpServletRequest request) {
+        ErrorStatus errorStatus = resolveUploadErrorStatus(request, false);
         CommonResponse<Object> body = CommonResponse.onFailure(
-                ErrorStatus.INVALID_PLANNER_IMAGE.getCode(),
-                ErrorStatus.INVALID_PLANNER_IMAGE.getMessage(),
+                errorStatus.getCode(),
+                errorStatus.getMessage(),
                 null
         );
 
-        return ResponseEntity.status(ErrorStatus.INVALID_PLANNER_IMAGE.getHttpStatus()).body(body);
+        return ResponseEntity.status(errorStatus.getHttpStatus()).body(body);
     }
 
 
@@ -130,5 +132,22 @@ public class GlobalExceptionHandler {
                 null
         );
         return ResponseEntity.status(ErrorStatus.FORBIDDEN.getHttpStatus()).body(body);
+    }
+
+    private ErrorStatus resolveUploadErrorStatus(HttpServletRequest request, boolean isMaxSize) {
+        String uri = request != null ? request.getRequestURI() : null;
+        if (uri == null) {
+            return isMaxSize ? ErrorStatus.PLANNER_IMAGE_TOO_LARGE : ErrorStatus.INVALID_PLANNER_IMAGE;
+        }
+
+        if (uri.contains("/api/tasks") && uri.contains("/submit")) {
+            return isMaxSize ? ErrorStatus.TASK_COMPLETION_IMAGE_TOO_LARGE : ErrorStatus.INVALID_TASK_COMPLETION_IMAGE;
+        }
+
+        if (uri.contains("/api/tasks") && uri.contains("/attachment")) {
+            return isMaxSize ? ErrorStatus.TASK_ATTACHMENT_TOO_LARGE : ErrorStatus.INVALID_TASK_ATTACHMENT;
+        }
+
+        return isMaxSize ? ErrorStatus.PLANNER_IMAGE_TOO_LARGE : ErrorStatus.INVALID_PLANNER_IMAGE;
     }
 }
