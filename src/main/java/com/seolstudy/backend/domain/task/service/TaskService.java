@@ -5,16 +5,21 @@ import com.seolstudy.backend.domain.subject.entity.Subject;
 import com.seolstudy.backend.domain.subject.repository.SubjectRepository;
 import com.seolstudy.backend.domain.task.dto.*;
 import com.seolstudy.backend.domain.task.entity.Task;
+import com.seolstudy.backend.domain.task.entity.TaskCompletion;
+import com.seolstudy.backend.domain.task.repository.TaskCompletionRepository;
 import com.seolstudy.backend.domain.task.repository.TaskRepository;
 import com.seolstudy.backend.domain.user.entity.User;
 import com.seolstudy.backend.domain.user.repository.UserRepository;
 import com.seolstudy.backend.global.exception.GeneralException;
 import com.seolstudy.backend.global.payload.status.ErrorStatus;
+import com.seolstudy.backend.global.storage.LocalFileStorage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
@@ -29,6 +34,8 @@ public class TaskService {
     private final SubjectRepository subjectRepository;
     private final UserRepository userRepository;
     private final FeedbackRepository feedbackRepository;
+    private final TaskCompletionRepository taskCompletionRepository;
+    private final LocalFileStorage localFileStorage;
 
     /**
      * 오늘 할일 전체 조회
@@ -134,6 +141,32 @@ public class TaskService {
     }
 
     /**
+     * 과제 제출
+     */
+    @Transactional
+    public TaskCompletionResponse submitTask(Long taskId, MultipartFile completionPhoto) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.TASK_NOT_FOUND));
+
+        if (taskCompletionRepository.existsByTaskId(taskId)) {
+            throw new GeneralException(ErrorStatus.TASK_COMPLETION_ALREADY_EXISTS);
+        }
+
+        MultipartFile photo = getSingleCompletionPhoto(completionPhoto);
+        String photoUrl = localFileStorage.storeTaskCompletionImage(photo);
+
+        TaskCompletion completion = TaskCompletion.builder()
+                .task(task)
+                .completionPhotoUrl(photoUrl)
+                .isCompleted(Boolean.TRUE)
+                .completedAt(LocalDateTime.now())
+                .build();
+
+        TaskCompletion savedCompletion = taskCompletionRepository.save(completion);
+        return TaskCompletionResponse.from(savedCompletion);
+    }
+
+    /**
      * 날짜 문자열 파싱 (yyyy-MM-dd)
      */
     private LocalDate parseDate(String dateStr) {
@@ -173,5 +206,14 @@ public class TaskService {
 
         return userRepository.findById(userId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
+    }
+
+    private MultipartFile getSingleCompletionPhoto(MultipartFile completionPhoto) {
+        MultipartFile photo = completionPhoto;
+        if (photo == null || photo.isEmpty()) {
+            throw new GeneralException(ErrorStatus.INVALID_TASK_COMPLETION_IMAGE);
+        }
+
+        return photo;
     }
 }

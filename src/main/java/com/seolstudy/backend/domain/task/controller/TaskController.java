@@ -1,5 +1,6 @@
 package com.seolstudy.backend.domain.task.controller;
 
+import com.seolstudy.backend.domain.task.dto.TaskCompletionResponse;
 import com.seolstudy.backend.domain.task.dto.TaskCreateRequest;
 import com.seolstudy.backend.domain.task.dto.TaskCreateResponse;
 import com.seolstudy.backend.domain.task.dto.TaskListBySubjectResponse;
@@ -12,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "오늘 할일", description = "오늘 할일 관련 API")
@@ -54,6 +56,17 @@ public class TaskController {
             @Valid @RequestBody TaskCreateRequest request
     ) {
         TaskCreateResponse response = taskService.createTask(request);
+        return CommonResponse.of(SuccessStatus.CREATED, response);
+    }
+
+    @Operation(summary = "과제 제출", description = "완료 인증 사진을 제출합니다.")
+    @PostMapping(value = "/{task_id}/submit", consumes = "multipart/form-data")
+    @PreAuthorize("hasRole('MENTEE')")
+    public CommonResponse<TaskCompletionResponse> submitTask(
+            @PathVariable("task_id") Long taskId,
+            @RequestPart(value = "completion_photo", required = false) MultipartFile completionPhoto
+    ) {
+        TaskCompletionResponse response = taskService.submitTask(taskId, completionPhoto);
         return CommonResponse.of(SuccessStatus.CREATED, response);
     }
 }
