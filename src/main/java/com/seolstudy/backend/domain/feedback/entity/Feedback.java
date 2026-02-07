@@ -64,16 +64,9 @@ public class Feedback {
     }
 
     // 비즈니스 메서드
-    public void update(String detailContent, Boolean isImportant) {
+    public void update(String detailContent) {
         if (detailContent != null) {
             this.detailContent = detailContent;
         }
-        if (isImportant != null) {
-            this.isImportant = isImportant;
-        }
-    }
-
-    public void toggleImportant() {
-        this.isImportant = !this.isImportant;
     }
 }
