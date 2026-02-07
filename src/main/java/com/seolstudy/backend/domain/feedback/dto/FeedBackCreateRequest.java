@@ -29,6 +29,4 @@ public class FeedBackCreateRequest {
     private String feedbackDate; // yyyy-MM-dd
 
     private String detailContent;
-
-    private Boolean isImportant;
 }

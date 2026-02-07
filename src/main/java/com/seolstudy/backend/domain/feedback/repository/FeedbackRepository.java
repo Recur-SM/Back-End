@@ -1,13 +1,14 @@
 package com.seolstudy.backend.domain.feedback.repository;
 
 import com.seolstudy.backend.domain.feedback.entity.Feedback;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface FeedbackRepository extends JpaRepository<Feedback, Long> {
@@ -45,12 +46,6 @@ public interface FeedbackRepository extends JpaRepository<Feedback, Long> {
      */
     @Query("SELECT COUNT(f) > 0 FROM Feedback f WHERE f.mentee.id = :menteeId AND f.feedbackDate = :feedbackDate")
     boolean existsByMenteeIdAndFeedbackDate(@Param("menteeId") Long menteeId, @Param("feedbackDate") LocalDate feedbackDate);
-
-    /**
-     * 특정 멘티의 중요 피드백 목록 조회
-     */
-    @Query("SELECT f FROM Feedback f WHERE f.mentee.id = :menteeId AND f.isImportant = true ORDER BY f.feedbackDate DESC, f.createdAt DESC")
-    List<Feedback> findImportantByMenteeId(@Param("menteeId") Long menteeId);
 
     /**
      * 특정 멘티의 특정 과목 피드백 목록 조회

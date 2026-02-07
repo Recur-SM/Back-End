@@ -46,9 +46,6 @@ public class Feedback {
     @Column(name = "detail_content", columnDefinition = "TEXT")
     private String detailContent;
 
-    @Column(name = "is_important", nullable = false)
-    private Boolean isImportant;
-
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -59,9 +56,6 @@ public class Feedback {
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
-        if (isImportant == null) {
-            isImportant = false;
-        }
     }
 
     @PreUpdate
