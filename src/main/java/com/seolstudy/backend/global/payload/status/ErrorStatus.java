@@ -28,6 +28,10 @@ public enum ErrorStatus implements BaseStatus {
     MENTORING_ALREADY_INACTIVE(HttpStatus.BAD_REQUEST, "MENTORING_4001", "이미 비활성화된 관계입니다."),
     MENTORING_NOT_FOUND(HttpStatus.NOT_FOUND, "MENTORING_4041", "멘토링 관계를 찾을 수 없습니다."),
 
+    // Feedback Error
+    FEEDBACK_NOT_FOUND(HttpStatus.NOT_FOUND, "FEEDBACK_4041", "피드백을 찾을 수 없습니다."),
+    INVALID_FEEDBACK_DATE(HttpStatus.BAD_REQUEST, "FEEDBACK_4001", "유효하지 않은 피드백 날짜 형식입니다."),
+    FEEDBACK_ALREADY_EXISTS(HttpStatus.CONFLICT, "FEEDBACK_4091", "이미 피드백이 존재합니다."),
 
     // Member Error
     MEMBER_NOT_FOUND(HttpStatus.BAD_REQUEST, "MEMBER_4001", "사용자가 없습니다."),

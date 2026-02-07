@@ -1,5 +1,6 @@
 package com.seolstudy.backend.domain.task.service;
 
+import com.seolstudy.backend.domain.feedback.repository.FeedbackRepository;
 import com.seolstudy.backend.domain.subject.entity.Subject;
 import com.seolstudy.backend.domain.subject.repository.SubjectRepository;
 import com.seolstudy.backend.domain.task.dto.*;
@@ -27,6 +28,7 @@ public class TaskService {
     private final TaskRepository taskRepository;
     private final SubjectRepository subjectRepository;
     private final UserRepository userRepository;
+    private final FeedbackRepository feedbackRepository;
 
     /**
      * 오늘 할일 전체 조회
@@ -47,7 +49,8 @@ public class TaskService {
                     Subject subject = task.getSubject();
                     String subjectName = subject.getSubjectName();
                     String subjectCode = subject.getSubjectCode();
-                    return TaskResponse.from(task, subjectName, subjectCode);
+                    Boolean hasFeedback = feedbackRepository.existsByTaskId(task.getId());
+                    return TaskResponse.from(task, subjectName, subjectCode, hasFeedback);
                 })
                 .collect(Collectors.toList());
 
@@ -77,7 +80,10 @@ public class TaskService {
 
         // DTO 변환
         List<TaskResponse> taskResponses = tasks.stream()
-                .map(task -> TaskResponse.from(task, subjectName, subjectCode))
+                .map(task -> {
+                    Boolean hasFeedback = feedbackRepository.existsByTaskId(task.getId());
+                    return TaskResponse.from(task, subjectName, subjectCode, hasFeedback);
+                })
                 .collect(Collectors.toList());
 
         return TaskListBySubjectResponse.builder()
