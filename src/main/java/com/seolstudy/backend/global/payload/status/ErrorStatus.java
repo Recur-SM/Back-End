@@ -26,6 +26,7 @@ public enum ErrorStatus implements BaseStatus {
     MENTORING_INVALID_MENTEE_ROLE(HttpStatus.FORBIDDEN, "MENTORING_4032", "멘티 역할을 가진 사용자만 등록할 수 있습니다."),
     MENTORING_MENTEE_ALREADY_REGISTERED(HttpStatus.CONFLICT, "MENTORING_4091", "이미 등록된 멘티입니다."),
     MENTORING_ALREADY_INACTIVE(HttpStatus.BAD_REQUEST, "MENTORING_4001", "이미 비활성화된 관계입니다."),
+    MENTORING_NOT_FOUND(HttpStatus.NOT_FOUND, "MENTORING_4041", "멘토링 관계를 찾을 수 없습니다."),
 
 
     // Member Error
