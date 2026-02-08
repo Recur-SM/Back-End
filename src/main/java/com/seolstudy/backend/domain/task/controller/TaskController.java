@@ -4,6 +4,7 @@ import com.seolstudy.backend.domain.task.dto.TaskCompletionResponse;
 import com.seolstudy.backend.domain.task.dto.TaskAttachmentResponse;
 import com.seolstudy.backend.domain.task.dto.TaskCreateRequest;
 import com.seolstudy.backend.domain.task.dto.TaskCreateResponse;
+import com.seolstudy.backend.domain.task.dto.TaskDetailResponse;
 import com.seolstudy.backend.domain.task.dto.TaskListBySubjectResponse;
 import com.seolstudy.backend.domain.task.dto.TaskListResponse;
 import com.seolstudy.backend.domain.task.service.TaskService;
@@ -46,6 +47,17 @@ public class TaskController {
             @RequestParam("subject_code") String subjectCode
     ) {
         TaskListBySubjectResponse response = taskService.getTasksBySubject(menteeId, date, subjectCode);
+        return CommonResponse.onSuccess(response);
+    }
+
+    @Operation(summary = "과제 상세 조회", description = "특정 과제의 상세 정보를 조회합니다.")
+    @GetMapping("/{task_id}")
+    @PreAuthorize("hasAnyRole('MENTEE', 'MENTOR')")
+    public CommonResponse<TaskDetailResponse> getTaskDetail(
+            @PathVariable("task_id") Long taskId,
+            @RequestParam("mentee_id") Long menteeId
+    ) {
+        TaskDetailResponse response = taskService.getTaskDetail(taskId, menteeId);
         return CommonResponse.onSuccess(response);
     }
 
