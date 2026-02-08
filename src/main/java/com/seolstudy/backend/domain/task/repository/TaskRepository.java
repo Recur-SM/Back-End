@@ -27,4 +27,14 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
             @Param("taskDate") LocalDate taskDate,
             @Param("subjectId") Long subjectId
     );
+
+    /**
+     * 특정 멘티의 월별 과제 목록 조회
+     */
+    @Query("SELECT t FROM Task t JOIN FETCH t.subject WHERE t.mentee.id = :menteeId AND t.taskDate BETWEEN :startDate AND :endDate ORDER BY t.taskDate ASC, t.createdAt ASC")
+    List<Task> findByMenteeIdAndTaskDateBetween(
+            @Param("menteeId") Long menteeId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
 }
