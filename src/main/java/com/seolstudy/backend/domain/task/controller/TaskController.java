@@ -7,6 +7,7 @@ import com.seolstudy.backend.domain.task.dto.TaskCreateResponse;
 import com.seolstudy.backend.domain.task.dto.TaskDetailResponse;
 import com.seolstudy.backend.domain.task.dto.TaskListBySubjectResponse;
 import com.seolstudy.backend.domain.task.dto.TaskListResponse;
+import com.seolstudy.backend.domain.task.dto.TaskMonthlyResponse;
 import com.seolstudy.backend.domain.task.service.TaskService;
 import com.seolstudy.backend.global.payload.CommonResponse;
 import com.seolstudy.backend.global.payload.status.SuccessStatus;
@@ -47,6 +48,18 @@ public class TaskController {
             @RequestParam("subject_code") String subjectCode
     ) {
         TaskListBySubjectResponse response = taskService.getTasksBySubject(menteeId, date, subjectCode);
+        return CommonResponse.onSuccess(response);
+    }
+
+    @Operation(summary = "월별 과제 조회", description = "특정 연/월의 과제를 조회합니다.")
+    @GetMapping("/monthly")
+    @PreAuthorize("hasAnyRole('MENTEE', 'MENTOR')")
+    public CommonResponse<TaskMonthlyResponse> getMonthlyTasks(
+            @RequestParam("mentee_id") Long menteeId,
+            @RequestParam("year") int year,
+            @RequestParam("month") int month
+    ) {
+        TaskMonthlyResponse response = taskService.getMonthlyTasks(menteeId, year, month);
         return CommonResponse.onSuccess(response);
     }
 

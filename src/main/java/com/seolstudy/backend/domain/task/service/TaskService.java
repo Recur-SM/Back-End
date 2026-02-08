@@ -18,11 +18,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.DateTimeException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -116,6 +123,77 @@ public class TaskService {
         }
 
         return TaskDetailResponse.from(task);
+    }
+
+    /**
+     * 월별 과제 조회
+     */
+    public TaskMonthlyResponse getMonthlyTasks(Long menteeId, int year, int month) {
+        validateMenteeExists(menteeId);
+
+        LocalDate startDate = getMonthStartDate(year, month);
+        LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
+
+        List<Task> tasks = taskRepository.findByMenteeIdAndTaskDateBetween(menteeId, startDate, endDate);
+        Map<Long, TaskCompletion> completionMap = getCompletionMap(tasks);
+        Map<LocalDate, List<Task>> tasksByDate = tasks.stream()
+                .collect(Collectors.groupingBy(Task::getTaskDate));
+
+        List<TaskMonthlyDateResponse> dateResponses = new ArrayList<>();
+        int daysWithTasks = 0;
+        int totalTasks = tasks.size();
+        int completedTasks = 0;
+
+        for (int day = 1; day <= startDate.lengthOfMonth(); day++) {
+            LocalDate currentDate = startDate.withDayOfMonth(day);
+            List<Task> dayTasks = tasksByDate.getOrDefault(currentDate, List.of());
+
+            List<TaskMonthlyItemResponse> taskItems = dayTasks.stream()
+                    .map(task -> {
+                        TaskCompletion completion = completionMap.get(task.getId());
+                        boolean isCompleted = completion != null && Boolean.TRUE.equals(completion.getIsCompleted());
+                        return TaskMonthlyItemResponse.builder()
+                                .taskId(task.getId())
+                                .taskName(task.getTaskName())
+                                .subjectName(task.getSubject().getSubjectName())
+                                .isCompleted(isCompleted)
+                                .build();
+                    })
+                    .collect(Collectors.toList());
+
+            int dayTotalTasks = taskItems.size();
+            int dayCompletedTasks = (int) taskItems.stream()
+                    .filter(TaskMonthlyItemResponse::getIsCompleted)
+                    .count();
+
+            if (dayTotalTasks > 0) {
+                daysWithTasks++;
+            }
+            completedTasks += dayCompletedTasks;
+
+            dateResponses.add(TaskMonthlyDateResponse.builder()
+                    .date(currentDate)
+                    .dayOfWeek(toKoreanDayOfWeek(currentDate.getDayOfWeek()))
+                    .tasks(taskItems)
+                    .totalTasks(dayTotalTasks)
+                    .completedTasks(dayCompletedTasks)
+                    .build());
+        }
+
+        TaskMonthlySummaryResponse summary = TaskMonthlySummaryResponse.builder()
+                .totalDays(startDate.lengthOfMonth())
+                .daysWithTasks(daysWithTasks)
+                .totalTasks(totalTasks)
+                .completedTasks(completedTasks)
+                .completionRate(calculateCompletionRate(totalTasks, completedTasks))
+                .build();
+
+        return TaskMonthlyResponse.builder()
+                .year(year)
+                .month(month)
+                .dates(dateResponses)
+                .summary(summary)
+                .build();
     }
 
     /**
@@ -250,5 +328,49 @@ public class TaskService {
         }
 
         return completionPhoto;
+    }
+
+    private LocalDate getMonthStartDate(int year, int month) {
+        try {
+            return LocalDate.of(year, month, 1);
+        } catch (DateTimeException e) {
+            throw new GeneralException(ErrorStatus.INVALID_TASK_DATE);
+        }
+    }
+
+    private Map<Long, TaskCompletion> getCompletionMap(List<Task> tasks) {
+        if (tasks.isEmpty()) {
+            return new HashMap<>();
+        }
+
+        List<Long> taskIds = tasks.stream()
+                .map(Task::getId)
+                .collect(Collectors.toList());
+
+        return taskCompletionRepository.findByTaskIdIn(taskIds).stream()
+                .collect(Collectors.toMap(
+                        completion -> completion.getTask().getId(),
+                        completion -> completion
+                ));
+    }
+
+    private Double calculateCompletionRate(int totalTasks, int completedTasks) {
+        if (totalTasks == 0) {
+            return 0.0;
+        }
+        double rate = (double) completedTasks * 100.0 / totalTasks;
+        return BigDecimal.valueOf(rate).setScale(2, RoundingMode.HALF_UP).doubleValue();
+    }
+
+    private String toKoreanDayOfWeek(DayOfWeek dayOfWeek) {
+        return switch (dayOfWeek) {
+            case MONDAY -> "월";
+            case TUESDAY -> "화";
+            case WEDNESDAY -> "수";
+            case THURSDAY -> "목";
+            case FRIDAY -> "금";
+            case SATURDAY -> "토";
+            case SUNDAY -> "일";
+        };
     }
 }
