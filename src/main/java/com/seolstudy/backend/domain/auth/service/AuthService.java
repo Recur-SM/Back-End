@@ -64,7 +64,7 @@ public class AuthService {
 
         saveRefreshToken(user, refreshToken);
 
-        return LoginResponse.of(accessToken, refreshToken, user.getId(), user.getUsername());
+        return LoginResponse.of(accessToken, refreshToken, user.getId(), user.getUsername(), user.getRole().name());
     }
 
     @Transactional
@@ -84,7 +84,7 @@ public class AuthService {
 
         storedToken.updateToken(newRefreshToken);
 
-        return LoginResponse.of(newAccessToken, newRefreshToken, user.getId(), user.getUsername());
+        return LoginResponse.of(newAccessToken, newRefreshToken, user.getId(), user.getUsername(), user.getRole().name());
     }
 
     @Transactional
