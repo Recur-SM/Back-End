@@ -146,6 +146,7 @@ class AuthServiceTest {
         //then
         assertThat(response.getTokenType()).isEqualTo("Bearer");
         assertThat(response.getUsername()).isEqualTo("test");
+        assertThat(response.getRole()).isEqualTo(UserRole.MENTEE.name());
     }
 
     @Test

@@ -16,14 +16,16 @@ public class LoginResponse {
     private String tokenType;
     private Long userId;
     private String username;
+    private String role;
 
-    public static LoginResponse of(String accessToken, String refreshToken, Long userId, String username) {
+    public static LoginResponse of(String accessToken, String refreshToken, Long userId, String username, String role) {
         return LoginResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .tokenType("Bearer")
                 .userId(userId)
                 .username(username)
+                .role(role)
                 .build();
     }
 }
