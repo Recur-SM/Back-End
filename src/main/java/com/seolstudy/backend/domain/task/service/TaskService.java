@@ -102,6 +102,23 @@ public class TaskService {
     }
 
     /**
+     * 과제 상세 조회
+     */
+    public TaskDetailResponse getTaskDetail(Long taskId, Long menteeId) {
+        // 멘티 존재 여부 확인
+        validateMenteeExists(menteeId);
+
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.TASK_NOT_FOUND));
+
+        if (!task.getMentee().getId().equals(menteeId)) {
+            throw new GeneralException(ErrorStatus.TASK_NOT_FOUND);
+        }
+
+        return TaskDetailResponse.from(task);
+    }
+
+    /**
      * 오늘 할일 추가
      */
     @Transactional
