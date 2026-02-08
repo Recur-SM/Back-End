@@ -17,7 +17,7 @@ public class CorsConfig {
         configuration.setAllowedOrigins(Arrays.asList(
                 "http://localhost:3000",
                 "http://localhost:5173",
-                "https://seol-study.vercel.app/"
+                "https://seol-study.vercel.app"
         ));
 
         configuration.setAllowedMethods(Arrays.asList(
