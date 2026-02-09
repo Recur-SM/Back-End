@@ -4,6 +4,7 @@ import com.seolstudy.backend.domain.feedback.repository.FeedbackRepository;
 import com.seolstudy.backend.domain.subject.entity.Subject;
 import com.seolstudy.backend.domain.subject.repository.SubjectRepository;
 import com.seolstudy.backend.domain.task.dto.*;
+import com.seolstudy.backend.domain.task.entity.LearningMaterialType;
 import com.seolstudy.backend.domain.task.entity.Task;
 import com.seolstudy.backend.domain.task.entity.TaskCompletion;
 import com.seolstudy.backend.domain.task.repository.TaskCompletionRepository;
@@ -209,6 +210,12 @@ public class TaskService {
         Subject subject = subjectRepository.findBySubjectCode(request.getSubjectCode())
                 .orElseThrow(() -> new GeneralException(ErrorStatus.SUBJECT_NOT_FOUND));
 
+        LearningMaterialType learningMaterialType = request.getLearningMaterialType();
+        if (learningMaterialType == null) {
+            learningMaterialType = LearningMaterialType.COLUMN;
+        }
+
+
         // 날짜 파싱
         LocalDate taskDate = parseDate(request.getTaskDate());
 
@@ -221,7 +228,7 @@ public class TaskService {
                 .taskName(request.getTaskName())
                 .taskGoal(request.getTaskGoal())
                 .taskType(request.getTaskType())
-                .learningMaterialType(request.getLearningMaterialType())
+                .learningMaterialType(learningMaterialType)
                 .pdfFileUrl(null)
                 .columnContent(request.getColumnContent())
                 .comment(request.getComment())
