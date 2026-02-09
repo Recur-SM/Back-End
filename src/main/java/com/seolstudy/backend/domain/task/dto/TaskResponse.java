@@ -32,7 +32,7 @@ public class TaskResponse {
     private LocalDateTime completedAt;
     private Boolean hasFeedback;
 
-    public static TaskResponse from(Task task, String subjectName, String subjectCode, Boolean hasFeedback) {
+    public static TaskResponse from(Task task, String subjectName, String subjectCode, Boolean hasFeedback, String pdfFileUrl) {
         return TaskResponse.builder()
                 .taskId(task.getId())
                 .subjectName(subjectName)
@@ -42,7 +42,7 @@ public class TaskResponse {
                 .taskGoal(task.getTaskGoal())
                 .taskType(task.getTaskType())
                 .learningMaterialType(task.getLearningMaterialType())
-                .pdfFileUrl(task.getPdfFileUrl())
+                .pdfFileUrl(pdfFileUrl)
                 .columnContent(task.getColumnContent())
                 .comment(task.getComment())
                 .isCompleted(false)

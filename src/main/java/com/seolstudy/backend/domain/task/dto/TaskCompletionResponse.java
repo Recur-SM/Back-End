@@ -19,11 +19,11 @@ public class TaskCompletionResponse {
     private LocalDateTime completedAt;
     private LocalDateTime createdAt;
 
-    public static TaskCompletionResponse from(TaskCompletion completion) {
+    public static TaskCompletionResponse from(TaskCompletion completion, String completionPhotoUrl) {
         return TaskCompletionResponse.builder()
                 .completionId(completion.getId())
                 .taskId(completion.getTask().getId())
-                .completionPhotoUrl(completion.getCompletionPhotoUrl())
+                .completionPhotoUrl(completionPhotoUrl)
                 .isCompleted(completion.getIsCompleted())
                 .completedAt(completion.getCompletedAt())
                 .createdAt(completion.getCreatedAt())
