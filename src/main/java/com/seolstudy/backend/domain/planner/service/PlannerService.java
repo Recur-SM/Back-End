@@ -49,7 +49,7 @@ public class PlannerService {
                 .menteeId(request.getMenteeId())
                 .plannerDate(plannerDate)
                 .content(request.getContent())
-                // .imageUrl(imageUrl)
+                .imageUrl(imageUrl)
                 .build();
 
         Planner savedPlanner = plannerRepository.save(planner);
