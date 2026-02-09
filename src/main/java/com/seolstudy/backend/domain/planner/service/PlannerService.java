@@ -12,12 +12,13 @@ import com.seolstudy.backend.domain.user.entity.UserRole;
 import com.seolstudy.backend.domain.user.repository.UserRepository;
 import com.seolstudy.backend.global.exception.GeneralException;
 import com.seolstudy.backend.global.payload.status.ErrorStatus;
-import com.seolstudy.backend.global.storage.LocalFileStorage;
+import com.seolstudy.backend.global.storage.FileStorage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -28,7 +29,7 @@ import java.time.format.DateTimeParseException;
 public class PlannerService {
 
     private final PlannerRepository plannerRepository;
-    private final LocalFileStorage localFileStorage;
+    private final FileStorage fileStorage;
     private final UserRepository userRepository;
 
     /**
@@ -44,17 +45,18 @@ public class PlannerService {
 
         LocalDate plannerDate = parseDate(request.getPlannerDate());
         // 이미지 업로드는 "업로드" 커밋으로 분리 예정
-        String imageUrl = localFileStorage.storePlannerImage(image);
+        String imageKey = fileStorage.uploadPlannerImage(image);
 
         Planner planner = Planner.builder()
                 .menteeId(request.getMenteeId())
                 .plannerDate(plannerDate)
                 .content(request.getContent())
-                .imageUrl(imageUrl)
+                .imageUrl(imageKey)
                 .build();
 
         Planner savedPlanner = plannerRepository.save(planner);
-        return PlannerCreateResponse.from(savedPlanner);
+        String imageUrl = fileStorage.createPresignedGetUrl(imageKey, Duration.ofHours(24));
+        return PlannerCreateResponse.from(savedPlanner, imageUrl);
     }
 
     /**
@@ -70,7 +72,8 @@ public class PlannerService {
         Planner planner = plannerRepository.findTopByMenteeIdAndPlannerDateOrderByCreatedAtDesc(menteeId, parsedDate)
                 .orElseThrow(() -> new GeneralException(ErrorStatus.PLANNER_NOT_FOUND));
 
-        return PlannerDetailResponse.from(planner);
+        String imageUrl = fileStorage.createPresignedGetUrl(planner.getImageUrl(), Duration.ofHours(24));
+        return PlannerDetailResponse.from(planner, imageUrl);
     }
 
     /**

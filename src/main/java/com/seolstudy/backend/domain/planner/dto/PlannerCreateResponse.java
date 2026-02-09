@@ -20,13 +20,13 @@ public class PlannerCreateResponse {
     private String imageUrl;
     private LocalDateTime createdAt;
 
-    public static PlannerCreateResponse from(Planner planner) {
+    public static PlannerCreateResponse from(Planner planner, String imageUrl) {
         return PlannerCreateResponse.builder()
                 .plannerId(planner.getId())
                 .menteeId(planner.getMenteeId())
                 .plannerDate(planner.getPlannerDate())
                 .content(planner.getContent())
-                .imageUrl(planner.getImageUrl())
+                .imageUrl(imageUrl)
                 .createdAt(planner.getCreatedAt())
                 .build();
     }
