@@ -23,6 +23,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
+                .cors(cors -> {})
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -33,10 +34,10 @@ public class SecurityConfig {
                         .requestMatchers("/uploads/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                // ✅ JWT 필터를 UsernamePasswordAuthenticationFilter 앞에 끼움
+                // JWT 필터를 UsernamePasswordAuthenticationFilter 앞에 끼움
                 .addFilterBefore(jwtAuthenticationFilter,
                         org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
-                // ✅ JWT면 보통 httpBasic은 끔
+                // JWT면 보통 httpBasic은 끔
                 .httpBasic(httpBasic -> httpBasic.disable())
                 .build();
     }
