@@ -1,6 +1,5 @@
 package com.seolstudy.backend.global.config;
 
-import java.util.Arrays;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
@@ -14,26 +13,18 @@ public class CorsConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(Arrays.asList(
-                "http://localhost:3000",
-                "http://localhost:5173",
-                "https://seol-study.vercel.app"
-        ));
+        configuration.addAllowedOriginPattern("*");
 
-        configuration.setAllowedMethods(Arrays.asList(
-                "GET", "POST", "PUT", "DELETE"
-        ));
+        configuration.addAllowedMethod("*");
 
-        configuration.setAllowedMethods(Arrays.asList("*"));
+        configuration.addAllowedHeader("*");
 
         configuration.setAllowCredentials(true);
 
         configuration.setMaxAge(3600L);
 
-        configuration.setExposedHeaders(Arrays.asList(
-                "Authorization",
-                "Content-Type"
-        ));
+        configuration.addExposedHeader("Authorization");
+        configuration.addExposedHeader("Content-Type");
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
