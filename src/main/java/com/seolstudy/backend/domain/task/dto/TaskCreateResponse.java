@@ -31,7 +31,7 @@ public class TaskCreateResponse {
     private Boolean isFixed;
     private LocalDateTime createdAt;
 
-    public static TaskCreateResponse from(Task task, String subjectName, String subjectCode) {
+    public static TaskCreateResponse from(Task task, String subjectName, String subjectCode, String pdfFileUrl) {
         return TaskCreateResponse.builder()
                 .taskId(task.getId())
                 .menteeId(task.getMentee().getId())
@@ -43,7 +43,7 @@ public class TaskCreateResponse {
                 .taskGoal(task.getTaskGoal())
                 .taskType(task.getTaskType())
                 .learningMaterialType(task.getLearningMaterialType())
-                .pdfFileUrl(task.getPdfFileUrl())
+                .pdfFileUrl(pdfFileUrl)
                 .columnContent(task.getColumnContent())
                 .comment(task.getComment())
                 .isFixed(task.getIsFixed())

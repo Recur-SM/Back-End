@@ -23,14 +23,14 @@ public class PlannerDetailResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public static PlannerDetailResponse from(Planner planner) {
+    public static PlannerDetailResponse from(Planner planner, String imageUrl) {
         return PlannerDetailResponse.builder()
                 .plannerId(planner.getId())
                 .menteeId(planner.getMenteeId())
                 .mentorId(planner.getMentorId())
                 .plannerDate(planner.getPlannerDate())
                 .content(planner.getContent())
-                .imageUrl(planner.getImageUrl())
+                .imageUrl(imageUrl)
                 .mentorComment(planner.getMentorComment())
                 .createdAt(planner.getCreatedAt())
                 .updatedAt(planner.getUpdatedAt())

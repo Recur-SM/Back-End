@@ -10,3 +10,10 @@ server:
 springdoc:
   swagger-ui:
     path: /swagger
+
+storage:
+  endpoint: ${STORAGE_ENDPOINT}
+  region: ${STORAGE_REGION:us-east-1}
+  bucket: ${STORAGE_BUCKET}
+  access-key: ${STORAGE_ACCESS_KEY}
+  secret-key: ${STORAGE_SECRET_KEY}

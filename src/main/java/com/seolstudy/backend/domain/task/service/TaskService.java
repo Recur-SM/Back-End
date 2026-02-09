@@ -13,7 +13,7 @@ import com.seolstudy.backend.domain.user.entity.User;
 import com.seolstudy.backend.domain.user.repository.UserRepository;
 import com.seolstudy.backend.global.exception.GeneralException;
 import com.seolstudy.backend.global.payload.status.ErrorStatus;
-import com.seolstudy.backend.global.storage.LocalFileStorage;
+import com.seolstudy.backend.global.storage.FileStorage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Duration;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -43,7 +44,7 @@ public class TaskService {
     private final UserRepository userRepository;
     private final FeedbackRepository feedbackRepository;
     private final TaskCompletionRepository taskCompletionRepository;
-    private final LocalFileStorage localFileStorage;
+    private final FileStorage fileStorage;
 
     /**
      * 오늘 할일 전체 조회
@@ -65,7 +66,8 @@ public class TaskService {
                     String subjectName = subject.getSubjectName();
                     String subjectCode = subject.getSubjectCode();
                     Boolean hasFeedback = feedbackRepository.existsByTaskId(task.getId());
-                    return TaskResponse.from(task, subjectName, subjectCode, hasFeedback);
+                    String pdfFileUrl = fileStorage.createPresignedGetUrl(task.getPdfFileUrl(), Duration.ofHours(24));
+                    return TaskResponse.from(task, subjectName, subjectCode, hasFeedback, pdfFileUrl);
                 })
                 .collect(Collectors.toList());
 
@@ -97,7 +99,8 @@ public class TaskService {
         List<TaskResponse> taskResponses = tasks.stream()
                 .map(task -> {
                     Boolean hasFeedback = feedbackRepository.existsByTaskId(task.getId());
-                    return TaskResponse.from(task, subjectName, subjectCode, hasFeedback);
+                    String pdfFileUrl = fileStorage.createPresignedGetUrl(task.getPdfFileUrl(), Duration.ofHours(24));
+                    return TaskResponse.from(task, subjectName, subjectCode, hasFeedback, pdfFileUrl);
                 })
                 .collect(Collectors.toList());
 
@@ -123,7 +126,8 @@ public class TaskService {
             throw new GeneralException(ErrorStatus.TASK_NOT_FOUND);
         }
 
-        return TaskDetailResponse.from(task);
+        String pdfFileUrl = fileStorage.createPresignedGetUrl(task.getPdfFileUrl(), Duration.ofHours(24));
+        return TaskDetailResponse.from(task, pdfFileUrl);
     }
 
     /**
@@ -239,7 +243,8 @@ public class TaskService {
         Task savedTask = taskRepository.save(task);
 
         // DTO 변환 및 반환
-        return TaskCreateResponse.from(savedTask, subject.getSubjectName(), request.getSubjectCode());
+        String pdfFileUrl = fileStorage.createPresignedGetUrl(savedTask.getPdfFileUrl(), Duration.ofHours(24));
+        return TaskCreateResponse.from(savedTask, subject.getSubjectName(), request.getSubjectCode(), pdfFileUrl);
     }
 
     /**
@@ -250,15 +255,16 @@ public class TaskService {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus.TASK_NOT_FOUND));
 
-        String fileUrl = localFileStorage.storeTaskAttachment(file);
-        String oldFileUrl = task.getPdfFileUrl();
-        task.updateAttachmentUrl(fileUrl);
+        String fileKey = fileStorage.uploadTaskAttachment(file);
+        String oldFileKey = task.getPdfFileUrl();
+        task.updateAttachmentUrl(fileKey);
 
-        if (oldFileUrl != null && !oldFileUrl.equals(fileUrl)) {
-            localFileStorage.deleteTaskAttachment(oldFileUrl);
+        if (oldFileKey != null && !oldFileKey.equals(fileKey)) {
+            fileStorage.deleteObject(oldFileKey);
         }
 
-        return TaskAttachmentResponse.of(task.getId(), fileUrl);
+        String attachmentUrl = fileStorage.createPresignedGetUrl(fileKey, Duration.ofHours(24));
+        return TaskAttachmentResponse.of(task.getId(), attachmentUrl);
     }
 
     /**
@@ -270,30 +276,31 @@ public class TaskService {
                 .orElseThrow(() -> new GeneralException(ErrorStatus.TASK_NOT_FOUND));
 
         MultipartFile photo = getSingleCompletionPhoto(completionPhoto);
-        String photoUrl = localFileStorage.storeTaskCompletionImage(photo);
+        String photoKey = fileStorage.uploadTaskCompletionImage(photo);
         LocalDateTime completedAt = LocalDateTime.now();
 
         TaskCompletion existingCompletion = taskCompletionRepository.findByTaskId(taskId).orElse(null);
-        String oldPhotoUrl = existingCompletion != null ? existingCompletion.getCompletionPhotoUrl() : null;
+        String oldPhotoKey = existingCompletion != null ? existingCompletion.getCompletionPhotoUrl() : null;
 
         TaskCompletion completion = existingCompletion != null
                 ? existingCompletion
                 : TaskCompletion.builder()
                 .task(task)
-                .completionPhotoUrl(photoUrl)
+                .completionPhotoUrl(photoKey)
                 .isCompleted(Boolean.TRUE)
                 .completedAt(completedAt)
                 .build();
 
         if (existingCompletion != null) {
-            existingCompletion.overwriteCompletion(photoUrl, completedAt);
+            existingCompletion.overwriteCompletion(photoKey, completedAt);
         }
 
         TaskCompletion savedCompletion = taskCompletionRepository.save(completion);
-        if (oldPhotoUrl != null && !oldPhotoUrl.equals(photoUrl)) {
-            localFileStorage.deleteTaskCompletionImage(oldPhotoUrl);
+        if (oldPhotoKey != null && !oldPhotoKey.equals(photoKey)) {
+            fileStorage.deleteObject(oldPhotoKey);
         }
-        return TaskCompletionResponse.from(savedCompletion);
+        String completionPhotoUrl = fileStorage.createPresignedGetUrl(photoKey, Duration.ofHours(24));
+        return TaskCompletionResponse.from(savedCompletion, completionPhotoUrl);
     }
 
     /**

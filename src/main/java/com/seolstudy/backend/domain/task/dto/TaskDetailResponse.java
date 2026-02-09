@@ -29,7 +29,7 @@ public class TaskDetailResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public static TaskDetailResponse from(Task task) {
+    public static TaskDetailResponse from(Task task, String pdfFileUrl) {
         return TaskDetailResponse.builder()
                 .taskId(task.getId())
                 .taskDate(task.getTaskDate())
@@ -37,7 +37,7 @@ public class TaskDetailResponse {
                 .taskGoal(task.getTaskGoal())
                 .taskType(task.getTaskType())
                 .learningMaterialType(task.getLearningMaterialType())
-                .pdfFileUrl(task.getPdfFileUrl())
+                .pdfFileUrl(pdfFileUrl)
                 .columnContent(task.getColumnContent())
                 .isFixed(task.getIsFixed())
                 .createdAt(task.getCreatedAt())
