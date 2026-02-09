@@ -12,32 +12,22 @@ public class CorsConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
+        CorsConfiguration config = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(Arrays.asList(
-                "http://localhost:3000",
-                "http://localhost:5173",
-                "https://seol-study.vercel.app"
+        config.setAllowedOriginPatterns(Arrays.asList(
+                "http://localhost:*",
+                "https://seol-study.vercel.app",
+                "https://*.up.railway.app"
         ));
 
-        configuration.setAllowedMethods(Arrays.asList(
-                "GET", "POST", "PUT", "DELETE"
-        ));
-
-        configuration.setAllowedMethods(Arrays.asList("*"));
-
-        configuration.setAllowCredentials(true);
-
-        configuration.setMaxAge(3600L);
-
-        configuration.setExposedHeaders(Arrays.asList(
-                "Authorization",
-                "Content-Type"
-        ));
+        config.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE","OPTIONS"));
+        config.setAllowedHeaders(Arrays.asList("*"));
+        config.setExposedHeaders(Arrays.asList("Authorization","Content-Type"));
+        config.setAllowCredentials(true);
+        config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-
+        source.registerCorsConfiguration("/**", config);
         return source;
     }
 }
