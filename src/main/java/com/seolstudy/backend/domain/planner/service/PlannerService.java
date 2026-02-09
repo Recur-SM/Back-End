@@ -4,6 +4,7 @@ import com.seolstudy.backend.domain.planner.dto.PlannerCommentRequest;
 import com.seolstudy.backend.domain.planner.dto.PlannerCommentResponse;
 import com.seolstudy.backend.domain.planner.dto.PlannerCreateRequest;
 import com.seolstudy.backend.domain.planner.dto.PlannerCreateResponse;
+import com.seolstudy.backend.domain.planner.dto.PlannerDetailResponse;
 import com.seolstudy.backend.domain.planner.entity.Planner;
 import com.seolstudy.backend.domain.planner.repository.PlannerRepository;
 import com.seolstudy.backend.domain.user.entity.User;
@@ -54,6 +55,22 @@ public class PlannerService {
 
         Planner savedPlanner = plannerRepository.save(planner);
         return PlannerCreateResponse.from(savedPlanner);
+    }
+
+    /**
+     * 일자별 플래너 조회 (멘티/멘토)
+     */
+    public PlannerDetailResponse getPlanner(Long menteeId, String plannerDate) {
+        User mentee = getUserOrThrow(menteeId);
+        if (mentee.getRole() != UserRole.MENTEE) {
+            throw new GeneralException(ErrorStatus.INVALID_MENTEE_ROLE);
+        }
+
+        LocalDate parsedDate = parseDate(plannerDate);
+        Planner planner = plannerRepository.findTopByMenteeIdAndPlannerDateOrderByCreatedAtDesc(menteeId, parsedDate)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.PLANNER_NOT_FOUND));
+
+        return PlannerDetailResponse.from(planner);
     }
 
     /**

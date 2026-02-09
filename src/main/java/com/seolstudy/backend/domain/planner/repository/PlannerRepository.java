@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface PlannerRepository extends JpaRepository<Planner, Long> {
 
-    Optional<Planner> findByMenteeIdAndPlannerDate(Long menteeId, LocalDate plannerDate);
+    Optional<Planner> findTopByMenteeIdAndPlannerDateOrderByCreatedAtDesc(Long menteeId, LocalDate plannerDate);
 
     boolean existsByMenteeIdAndPlannerDate(Long menteeId, LocalDate plannerDate);
 }

@@ -4,6 +4,7 @@ import com.seolstudy.backend.domain.planner.dto.PlannerCommentRequest;
 import com.seolstudy.backend.domain.planner.dto.PlannerCommentResponse;
 import com.seolstudy.backend.domain.planner.dto.PlannerCreateRequest;
 import com.seolstudy.backend.domain.planner.dto.PlannerCreateResponse;
+import com.seolstudy.backend.domain.planner.dto.PlannerDetailResponse;
 import com.seolstudy.backend.domain.planner.service.PlannerService;
 import com.seolstudy.backend.global.payload.CommonResponse;
 import com.seolstudy.backend.global.payload.status.SuccessStatus;
@@ -44,6 +45,17 @@ public class PlannerController {
                 .build();
         PlannerCreateResponse response = plannerService.createPlanner(request, image);
         return CommonResponse.of(SuccessStatus.CREATED, response);
+    }
+
+    @Operation(summary = "일자별 플래너 조회", description = "멘티의 일자별 플래너를 조회합니다.")
+    @GetMapping
+    @PreAuthorize("hasAnyRole('MENTEE', 'MENTOR')")
+    public CommonResponse<PlannerDetailResponse> getPlanner(
+            @NotNull @RequestParam("menteeId") Long menteeId,
+            @NotBlank @RequestParam("plannerDate") String plannerDate
+    ) {
+        PlannerDetailResponse response = plannerService.getPlanner(menteeId, plannerDate);
+        return CommonResponse.onSuccess(response);
     }
 
     @Operation(summary = "일자별 플래너 코멘트 등록", description = "멘토가 일자별 플래너에 코멘트를 등록합니다.")
